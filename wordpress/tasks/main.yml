@@ -1,0 +1,41 @@
+---
+- name: Create wordpress volume Directory
+  file:
+    path: "/home/{{ ansible_user_id }}/data/wp_data"
+    state: directory
+    mode: '0755'
+
+- name: Check if WordPress is already installed
+  stat:
+    path: "/home/{{ ansible_user_id }}/data/wp_data/wp-config.php"
+  register: wp_installed
+
+- name: Download and install wodpress
+  block:
+    - name: Download wordpress files
+      get_url:
+        url: https://wordpress.org/wordpress-6.6.zip
+        dest: /home/{{ ansible_user_id }}/data/wp_data/latest.zip
+
+    - name: extract wordpress files
+      unarchive:
+        src: /home/{{ ansible_user_id }}/data/wp_data/latest.zip
+        dest: /home/{{ ansible_user_id }}/data/wp_data
+        remote_src: true
+
+    - name: cleanup
+      shell: |
+        mv /home/{{ ansible_user_id }}/data/wp_data/wordpress/* /home/{{ ansible_user_id }}/data/wp_data
+        rm -rf /home/{{ ansible_user_id }}/data/wp_data/wordpress
+        rm -rf /home/{{ ansible_user_id }}/data/wp_data/latest.zip
+
+    - name: create wp-config.php
+      template:
+        src: wp-config.php.j2
+        dest: /home/{{ ansible_user_id }}/data/wp_data/wp-config.php
+  when: not wp_installed.stat.exists
+
+- name: copy wordpress folder to app directory
+  copy:
+    src: wordpress
+    dest: /home/{{ ansible_user_id }}/app/requirements

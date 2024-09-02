@@ -1,0 +1,8 @@
+---
+aws_region: eu-west-3
+ec2_instance_type: t2.micro
+ec2_key_name: guesswhosback
+ec2_ami_id: ami-04a92520784b93e73
+ec2_subnet_id: subnet-0694c52cf561dace7
+ec2_security_group: sg-0de6519d56484ead9
+ec2_server_env: prod

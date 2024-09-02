@@ -1,0 +1,12 @@
+---
+- name: copy env file
+  copy:
+    src: .env.compose
+    dest: /home/{{ ansible_user_id }}/app
+  become: yes
+
+- name: Create and start services
+  community.docker.docker_compose_v2:
+    project_src: /home/{{ ansible_user_id }}/app
+    build: always
+  register: output

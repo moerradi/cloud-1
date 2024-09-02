@@ -1,0 +1,4 @@
+---
+fastcgi_pass: "{{ lookup('env', 'FASTCGI_PASS') }}"
+domain_name: "erradi.me"
+certbot_email: "{{ lookup('env', 'CERTBOT_EMAIL') }}"

@@ -1,0 +1,85 @@
+---
+- name: check if docker and docker-compose are installed
+  ansible.builtin.command: docker --version
+  register: docker_installed
+  ignore_errors: true
+
+- name: check if docker-compose is installed
+  ansible.builtin.command: docker compose --version
+  register: docker_compose_installed
+  ignore_errors: true
+
+- name: install docker
+  block:
+    - name: Ensure the package index is updated
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - unzip
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install Docker and Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose
+        state: present
+
+    - name: Ensure Docker is started and enabled at boot
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: create docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: docker
+        append: yes
+  when: docker_installed.failed or docker_compose_installed.failed
+  become: true
+
+- name: Reset ssh connection to allow user changes to affect ansible user
+  ansible.builtin.meta:
+    reset_connection
+
+- name: create app directory
+  file:
+    path: "/home/{{ ansible_user_id }}/app/requirements"
+    state: directory
+    mode: '0755'
+
+- name: try tearing down existing services
+  community.docker.docker_compose_v2:
+    project_src: /home/{{ ansible_user_id }}/app
+    state: absent
+  ignore_errors: true
+
+- name: copy docker-compose.yml
+  copy:
+    src: docker-compose.yml
+    dest: "/home/{{ ansible_user_id }}/app"

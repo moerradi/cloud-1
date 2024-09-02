@@ -1,0 +1,2 @@
+---
+duckdns_token: "{{ lookup('env', 'DUCKDNS_TOKEN') }}"

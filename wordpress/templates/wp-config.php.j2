@@ -1,0 +1,32 @@
+<?php
+define('DB_NAME', '{{ wordpress_db_name }}');
+define('DB_USER', '{{ wordpress_db_user }}');
+define('DB_PASSWORD', '{{ wordpress_db_password }}');
+define('DB_HOST', '{{ wordpress_db_host }}');
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+
+// Authentication Unique Keys and Salts.
+define('AUTH_KEY',         '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('SECURE_AUTH_KEY',  '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('LOGGED_IN_KEY',    '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('NONCE_KEY',        '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('AUTH_SALT',        '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('SECURE_AUTH_SALT', '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('LOGGED_IN_SALT',   '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+define('NONCE_SALT',       '{{ lookup('password', '/dev/null length=64 chars=ascii_letters') }}');
+
+// WordPress Database Table prefix.
+$table_prefix  = 'wp_';
+
+// For developers: WordPress debugging mode.
+define('WP_DEBUG', false);
+
+/* That's all, stop editing! Happy blogging. */
+
+/** Absolute path to the WordPress directory. */
+if ( !defined('ABSPATH') )
+    define('ABSPATH', dirname(__FILE__) . '/');
+
+/** Sets up WordPress vars and included files. */
+require_once(ABSPATH . 'wp-settings.php');

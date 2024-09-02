@@ -1,0 +1,15 @@
+---
+- name: Create an EC2 instance
+  hosts: servers_prod
+  gather_facts: yes
+  vars:
+    ec2_public_ip: "{{ hostvars[inventory_hostname]['public_ip_address']}}"
+    ec2_prod_domain: "{{ hostvars[inventory_hostname]['tags'].get('prod_domain', ec2_public_ip)}}"
+    ec2_has_domain: "{{ ec2_prod_domain != ec2_public_ip }}"
+
+  roles:
+    - setup
+    - wordpress
+    - nginx
+    - mariadb
+    - start
