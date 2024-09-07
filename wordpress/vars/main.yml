@@ -3,3 +3,4 @@ wordpress_db_name: "{{ lookup('env', 'WORDPRESS_DB_NAME', default=Undefined) | m
 wordpress_db_user: "{{ lookup('env', 'WORDPRESS_DB_USER', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_USER is required but was not set.') }}"
 wordpress_db_password: "{{ lookup('env', 'WORDPRESS_DB_PASSWORD', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_PASSWORD is required but was not set.') }}"
 wordpress_db_host: "{{ lookup('env', 'WORDPRESS_DB_HOST', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_HOST is required but was not set.') }}"
+wordpress_db_port: "{{ lookup('env', 'MARIADB_PORT', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_PORT is required but was not set.') }}"

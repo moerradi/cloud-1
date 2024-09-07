@@ -1,2 +1,2 @@
 ---
-mariadb_port: "3306"
+mariadb_port: "{{ lookup('env', 'MARIADB_PORT', default=Undefined) | mandatory('The environment variable MARIADB_PORT is required but was not set.') }}"

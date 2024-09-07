@@ -10,6 +10,11 @@
     path: "/home/{{ ansible_user_id }}/data/wp_data/wp-config.php"
   register: wp_installed
 
+- name: Check if phpmyadmin is already installed
+  stat:
+    path: "/home/{{ ansible_user_id }}/data/wp_data/phpmyadmin/config.inc.php"
+  register: phpmyadmin_installed
+
 - name: Download and install wodpress
   block:
     - name: Download wordpress files
@@ -29,11 +34,36 @@
         rm -rf /home/{{ ansible_user_id }}/data/wp_data/wordpress
         rm -rf /home/{{ ansible_user_id }}/data/wp_data/latest.zip
 
-    - name: create wp-config.php
-      template:
-        src: wp-config.php.j2
-        dest: /home/{{ ansible_user_id }}/data/wp_data/wp-config.php
   when: not wp_installed.stat.exists
+
+- name: create wp-config.php
+  template:
+    src: wp-config.php.j2
+    dest: /home/{{ ansible_user_id }}/data/wp_data/wp-config.php
+
+- name: download and install phpmyadmin
+  block:
+    - name: Download phpmyadmin files
+      get_url:
+        url: https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-all-languages.zip
+        dest: /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin.zip
+
+    - name: extract phpmyadmin files
+      unarchive:
+        src: /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin.zip
+        dest: /home/{{ ansible_user_id }}/data/wp_data
+        remote_src: true
+
+    - name: cleanup
+      shell: |
+        mv /home/{{ ansible_user_id }}/data/wp_data/phpMyAdmin-5.1.1-all-languages /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin
+        rm -rf /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin.zip
+  when: not phpmyadmin_installed.stat.exists
+
+- name: create phpmyadmin config file
+  template:
+    src: config.inc.php.j2
+    dest: /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin/config.inc.php
 
 - name: copy wordpress folder to app directory
   copy:
