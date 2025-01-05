@@ -1,0 +1,62 @@
+---
+- name: Install OpenSSL if not already installed
+  apt:
+    name:
+      - openssl
+      - certbot
+    state: present
+  become: true
+
+- name: copy nginx files
+  copy:
+    src: nginx
+    dest: /home/{{ ansible_user_id }}/app/requirements
+
+- name: create ssl keys directory
+  file:
+    path: /home/{{ ansible_user_id }}/app/requirements/nginx/keys
+    state: directory
+    mode: '0755'
+
+- name: Generate SSL key and certificate
+  block:
+    - name: Use Let's Encrypt if domain is specified
+      ansible.builtin.shell: |
+        certbot certonly --standalone -d {{ ec2_prod_domain }} --non-interactive --agree-tos --email {{ certbot_email }}
+        cp /etc/letsencrypt/live/{{ ec2_prod_domain }}/fullchain.pem /home/{{ ansible_user_id }}/app/requirements/nginx/keys/moerradi.crt
+        cp /etc/letsencrypt/live/{{ ec2_prod_domain }}/privkey.pem /home/{{ ansible_user_id }}/app/requirements/nginx/keys/moerradi.key
+      when: ec2_has_domain
+      become: true
+      ignore_errors: true
+      register: certbot_result
+
+    - name: Generate self-signed certificate if no domain is specified
+      ansible.builtin.command:
+        cmd: >
+          openssl req -new -newkey rsa:2048 -days 365 -nodes -x509
+          -subj "/C=MA/ST=Marrakech-Safi/L=Benguerir/O=1337/OU=Students/CN={{ ansible_host }}"
+          -keyout /home/{{ ansible_user_id }}/app/requirements/nginx/keys/moerradi.key
+          -out /home/{{ ansible_user_id }}/app/requirements/nginx/keys/moerradi.crt
+      when: not ec2_has_domain or certbot_result.failed == true
+      become: true
+
+- name: change ownership of key and set permissions
+  file:
+    path: /home/{{ ansible_user_id }}/app/requirements/nginx/keys/moerradi.key
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: '0400'
+  become: true
+
+- name: change ownership of cert and set permissions
+  file:
+    path: /home/{{ ansible_user_id }}/app/requirements/nginx/keys/moerradi.crt
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: '0400'
+  become: true
+
+- name: generate nginx config
+  template:
+    src: main.conf.j2
+    dest: /home/{{ ansible_user_id }}/app/requirements/nginx/main.conf

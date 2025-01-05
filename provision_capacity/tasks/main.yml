@@ -1,0 +1,36 @@
+---
+- name: Launch EC2 instance
+  amazon.aws.ec2_instance:
+
+    key_name: "{{ ec2_key_name }}"
+    instance_type: "{{ ec2_instance_type }}"
+    image_id: "{{ ec2_ami_id }}"
+    region: "{{ aws_region }}"
+    wait: yes
+    count: 1
+    vpc_subnet_id: "{{ ec2_subnet_id }}"
+    security_group: "{{ ec2_security_group }}"
+    tags:
+      prod_domain: "{{ duckdns_domain }}"
+      server_env: "{{ ec2_server_env }}"
+  register: ec2
+
+- name: Wait for SSH to become available
+  amazon.aws.ec2_instance_info:
+    instance_ids: "{{ ec2.instance_ids }}"
+    region: "{{ aws_region }}"
+  register: ec2_info
+  until: ec2_info.instances[0].state.name == "running"
+  retries: 5
+  delay: 10
+
+- name: Display the public IP address
+  debug:
+    msg: "Instance public IP: {{ ec2_info.instances[0].public_ip_address }}"
+
+- name: asign ip to duckdns
+  uri:
+    url: "https://www.duckdns.org/update?domains={{ duckdns_domain }}&token={{ duckdns_token }}&ip={{ ec2_info.instances[0].public_ip_address }}"
+    method: GET
+  register: duckdns
+

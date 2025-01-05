@@ -1,0 +1,8 @@
+[mariadbd]
+user                    = root
+pid-file                = /run/mysqld/mysqld.pid
+socket                  = /run/mysqld/mysqld.sock
+port                  	= {{ mariadb_port }}
+datadir                 = /var/lib/mysql
+tmpdir                  = /tmp
+bind-address            = 0.0.0.0
