@@ -4,3 +4,5 @@ wordpress_db_user: "{{ lookup('env', 'WORDPRESS_DB_USER', default=Undefined) | m
 wordpress_db_password: "{{ lookup('env', 'WORDPRESS_DB_PASSWORD', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_PASSWORD is required but was not set.') }}"
 wordpress_db_host: "{{ lookup('env', 'WORDPRESS_DB_HOST', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_HOST is required but was not set.') }}"
 wordpress_db_port: "{{ lookup('env', 'MARIADB_PORT', default=Undefined) | mandatory('The environment variable WORDPRESS_DB_PORT is required but was not set.') }}"
+mariadb_root_password: "{{ lookup('env', 'MARIADB_ROOT_PASSWORD', default=Undefined) | mandatory('The environment variable MARIADB_ROOT_PASSWORD is required but was not set.') }}"
+

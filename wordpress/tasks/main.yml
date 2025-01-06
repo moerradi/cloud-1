@@ -56,7 +56,7 @@
 
     - name: cleanup
       shell: |
-        mv /home/{{ ansible_user_id }}/data/wp_data/phpMyAdmin-5.1.1-all-languages /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin
+        mv /home/{{ ansible_user_id }}/data/wp_data/phpMyAdmin-5.2.1-all-languages /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin
         rm -rf /home/{{ ansible_user_id }}/data/wp_data/phpmyadmin.zip
   when: not phpmyadmin_installed.stat.exists
 

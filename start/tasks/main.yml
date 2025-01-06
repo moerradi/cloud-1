@@ -1,10 +1,9 @@
 ---
-- name: copy env file
-  copy:
-    src: .env.compose
-    dest: /home/{{ ansible_user_id }}/app
+- name: create env file
+  template:
+    src: .env.compose.j2
+    dest: /home/{{ ansible_user_id }}/app/.env.compose
   become: yes
-
 - name: Create and start services
   community.docker.docker_compose_v2:
     project_src: /home/{{ ansible_user_id }}/app
