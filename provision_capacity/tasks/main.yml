@@ -13,6 +13,7 @@
     tags:
       prod_domain: "{{ duckdns_domain }}"
       server_env: "{{ ec2_server_env }}"
+    state: running
   register: ec2
 
 - name: Wait for SSH to become available
